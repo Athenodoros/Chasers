@@ -45,11 +45,13 @@ export class ComputeShaderRunner {
         });
     }
 
-    render = (commandEncoder: GPUCommandEncoder, x: number, y: number = 1, z: number = 1) => {
-        const compute_pass = commandEncoder.beginComputePass();
-        compute_pass.setPipeline(this.pipeline);
-        compute_pass.setBindGroup(0, this.bind_group);
-        compute_pass.dispatchWorkgroups(x, y, z);
-        compute_pass.end();
-    };
+    runner =
+        (x: number, y: number = 1, z: number = 1) =>
+        (commandEncoder: GPUCommandEncoder) => {
+            const compute_pass = commandEncoder.beginComputePass();
+            compute_pass.setPipeline(this.pipeline);
+            compute_pass.setBindGroup(0, this.bind_group);
+            compute_pass.dispatchWorkgroups(x, y, z);
+            compute_pass.end();
+        };
 }

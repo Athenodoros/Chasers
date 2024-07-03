@@ -3,8 +3,11 @@ import code from "./shader.wgsl";
 export class TextureRendererShader {
     pipeline: GPURenderPipeline;
     bind_group: GPUBindGroup;
+    getTarget: () => GPUTextureView;
 
-    constructor(device: GPUDevice, source: GPUTextureView) {
+    constructor(device: GPUDevice, source: GPUTextureView, getTarget: () => GPUTextureView) {
+        this.getTarget = getTarget;
+
         const samplerDescriptor: GPUSamplerDescriptor = {
             addressModeU: "repeat",
             addressModeV: "repeat",
@@ -54,9 +57,9 @@ export class TextureRendererShader {
         });
     }
 
-    render = (commandEncoder: GPUCommandEncoder, target: GPUTextureView) => {
+    renderer = (commandEncoder: GPUCommandEncoder) => {
         const renderpass: GPURenderPassEncoder = commandEncoder.beginRenderPass({
-            colorAttachments: [{ view: target, loadOp: "clear", storeOp: "store" }],
+            colorAttachments: [{ view: this.getTarget(), loadOp: "clear", storeOp: "store" }],
         });
         renderpass.setPipeline(this.pipeline);
         renderpass.setBindGroup(0, this.bind_group);

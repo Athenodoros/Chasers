@@ -5,7 +5,7 @@
 
 struct Scene {
     dt: f32,
-    time: f32,
+    _time: f32,
     width: f32,
     height: f32,
     acc: f32,

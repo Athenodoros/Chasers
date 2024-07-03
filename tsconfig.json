@@ -14,7 +14,7 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "skipLibCheck": true,
-        "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types", "vite-plugin-glsl/ext"]
+        "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
     },
     "include": ["src"]
 }
