@@ -1,5 +1,5 @@
 import compute_kernel from "./compute_kernel.wgsl";
-import { GPUAssetCreator } from "./utils/assets";
+import { GPUAssetUtility } from "./utils/GPUAssetUtility";
 import { ComputeShaderRunner } from "./utils/compute";
 import { TextureRendererShader } from "./utils/renderer";
 
@@ -18,8 +18,8 @@ export class Runner {
 
     static async from(canvas: HTMLCanvasElement, config: RunnerConfig) {
         const adapter = await navigator.gpu?.requestAdapter();
-        const device = await adapter?.requestDevice();
-        if (!device) throw new Error("No GPU device found!");
+        if (!adapter) throw new Error("No GPU device found!");
+        const device = await adapter.requestDevice();
         return new Runner(canvas, device, config);
     }
 
@@ -27,8 +27,8 @@ export class Runner {
         const { thousands, acceleration, velocity, sensor, range, halflife } = config;
         const chasers = thousands * 1000;
 
-        const creator = new GPUAssetCreator(device);
-        const context = creator.getCanvasContext(canvas);
+        const utility = new GPUAssetUtility(device);
+        const context = utility.getCanvasContext(canvas);
 
         // Assets
 
@@ -45,10 +45,10 @@ export class Runner {
             ];
         });
 
-        const colourBufferView = creator.getTextureView(canvas.width, canvas.height);
-        const sceneBuffer = creator.getFloat32Buffer("uniform", scene);
-        const chaserBuffer = creator.getFloat32Buffer("storage", chaserValues);
-        const valueBuffer = creator.getFloat32Buffer("storage", canvas.width * canvas.height * 4);
+        const colourBufferView = utility.getTextureView(canvas.width, canvas.height);
+        const sceneBuffer = utility.getFloat32Buffer("uniform", scene);
+        const chaserBuffer = utility.getFloat32Buffer("storage", chaserValues);
+        const valueBuffer = utility.getFloat32Buffer("storage", canvas.width * canvas.height * 4);
         const bindings: ComputeShaderRunner.Binding[] = [colourBufferView, sceneBuffer, chaserBuffer, valueBuffer];
 
         this.writeSceneValue = (index: number, ...values: number[]) =>
@@ -61,7 +61,7 @@ export class Runner {
         const texturer = new TextureRendererShader(device, colourBufferView.view, () =>
             context.getCurrentTexture().createView()
         );
-        this.runner = creator.getCommandRunner([
+        this.runner = utility.getCommandRunner([
             background_computer.runner(canvas.width, canvas.height),
             chaser_computer.runner(thousands, 1000),
             draw_computer.runner(canvas.width, canvas.height),

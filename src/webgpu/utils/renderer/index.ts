@@ -43,6 +43,7 @@ export class TextureRendererShader {
         // Pipeline
         const pipeline_layout = device.createPipelineLayout({ bindGroupLayouts: [bind_group_layout] });
         this.pipeline = device.createRenderPipeline({
+            label: "texture-display-renderer",
             layout: pipeline_layout,
             vertex: {
                 module: device.createShaderModule({ code }),

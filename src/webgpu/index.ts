@@ -1,6 +1,6 @@
 import { Simulation } from "../utils/runner";
 import { Runner, RunnerConfig } from "./runner";
-import { setCanvasDimensions } from "./utils/assets";
+import { setCanvasDimensions } from "./utils/utilities";
 
 export class WebGPUSimulation implements Simulation {
     canvas: HTMLCanvasElement;

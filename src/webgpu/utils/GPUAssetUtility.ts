@@ -8,12 +8,13 @@ export interface GPUAssetBuffer {
 
 export interface GPUAssetTexture {
     type: "texture";
+    texture: GPUTexture;
     view: GPUTextureView;
 }
 
 type GPUCommand = (commandEncoder: GPUCommandEncoder) => void;
 
-export class GPUAssetCreator {
+export class GPUAssetUtility {
     private device: GPUDevice;
 
     constructor(device: GPUDevice) {
@@ -21,7 +22,7 @@ export class GPUAssetCreator {
     }
 
     getFloat32Buffer(type: GPUBufferBindingType, values: number[] | Float32Array, usage?: number): GPUAssetBuffer;
-    getFloat32Buffer(type: GPUBufferBindingType, length: number, usage?: number): GPUAssetBuffer;
+    getFloat32Buffer(type: GPUBufferBindingType, lengthInBytes: number, usage?: number): GPUAssetBuffer;
     getFloat32Buffer(
         type: GPUBufferBindingType,
         lengthOrValues: number | number[] | Float32Array,
@@ -47,12 +48,16 @@ export class GPUAssetCreator {
     }
 
     getTextureView(width: number, height: number): GPUAssetTexture {
-        const colour_buffer = this.device.createTexture({
+        const texture = this.device.createTexture({
             size: { width, height },
             format: "rgba8unorm",
-            usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING,
+            usage:
+                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.STORAGE_BINDING |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_SRC,
         });
-        return { type: "texture", view: colour_buffer.createView() };
+        return { type: "texture", texture, view: texture.createView() };
     }
 
     getCanvasContext(canvas: HTMLCanvasElement): GPUCanvasContext {
@@ -70,15 +75,3 @@ export class GPUAssetCreator {
         };
     }
 }
-
-export const setCanvasDimensions = (
-    canvas: HTMLCanvasElement,
-    width: number = window.innerWidth,
-    height: number = window.innerHeight
-): void => {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px";
-};
